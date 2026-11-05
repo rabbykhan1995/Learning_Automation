@@ -17,8 +17,8 @@ export const messengerAgent = new Agent({
     6. Reply in Bengali or match the customer's language.
   `,
 
-  model: 'groq/llama-3.3-70b-versatile',
-
+  // model: 'groq/llama-3.3-70b-versatile',
+  model: 'openrouter/qwen/qwen3.6-35b-a3b',
   tools: {
     getProduct,
   },
