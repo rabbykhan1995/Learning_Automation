@@ -1,4 +1,3 @@
-
 import { createTool } from '@mastra/core/tools';
 import { z } from 'zod';
 import { products } from '../products';
@@ -7,35 +6,33 @@ export const getProduct = createTool({
   id: 'get-product',
 
   description: `
-    Find a product using its ID or name.
-
-    Use this tool when a customer asks about a specific product.
-    The customer can provide either a product ID or product name.
-
-    Returns the product ID, name, and Markdown description.
+    Fetch product information.
+    - If 'id' or 'name' is provided, returns that specific product.
+    - If no parameters are provided or 'all' is requested, returns ALL available products.
   `,
 
   inputSchema: z.object({
-    id: z.string().optional()
-      .describe('Product ID'),
+    id: z.string().optional().describe('Product ID'),
+    name: z.string().optional().describe('Product name'),
+    all: z.boolean().optional().describe('Set to true to get all products'),
+  }),
 
-    name: z.string().optional()
-      .describe('Product name'),
-  }).refine(
-    (data) => Boolean(data.id?.trim() || data.name?.trim()),
-    {
-      message: 'Either product ID or product name is required',
+  execute: async ({ id, name, all }) => {
+    // ১. কাস্টমার যদি সব প্রোডাক্ট চায় অথবা কোনো ফিল্টার না দেয়
+    if (all || (!id && !name)) {
+      return {
+        found: true,
+        message: 'Retrieved all products successfully',
+        products: products,
+      };
     }
-  ),
 
-  execute: async ({ id, name }) => {
+    // ২. নির্দিষ্ট প্রোডাক্ট খোঁজা
     const product = products.find((item) => {
-      const matchId =
-        id?.trim() && item.id === id.trim();
-
+      const matchId = id?.trim() && item.id === id.trim();
       const matchName =
         name?.trim() &&
-        item.name.toLowerCase() === name.trim().toLowerCase();
+        item.name.toLowerCase().includes(name.trim().toLowerCase());
 
       return matchId || matchName;
     });
